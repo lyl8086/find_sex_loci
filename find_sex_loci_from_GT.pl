@@ -25,7 +25,7 @@ my $usage = '
     -e: error rate. 
     -h: help message.
 ';
-$cov   = defined $cov ? $cov : 0.8;
+$cov   = defined $cov ? $cov : 0.6;
 $error = defined $error ? $error : 0.05;
 die $usage if ($help || !($in && $out && $popmap));
 if (substr($in, -2) eq 'gz') {
@@ -46,6 +46,7 @@ my $th_female = $cov   >= 1 ? $cov   : $cov*$cnt->{'female'};
 my $e_female  = $error >= 1 ? $error : $error*$cnt->{'male'};
 
 my $vcf_header = 0;
+my $sex_loci_cnt = 0;
 while (<$in_fh>) {
     
     # GT from vcftools
@@ -93,12 +94,13 @@ while (<$in_fh>) {
         my $f_het = sprintf "%.5f", $f/$all{'female'};
         my $m_het = sprintf "%.5f", $m/$all{'male'};
         print $out_fh join("\t", $chrom, $pos, $f, $m, $f_het, $m_het, @GT), "\n";
+        $sex_loci_cnt++;
     }
     
 }
 close $in_fh;
 close $out_fh;
-
+print STDERR "Total $sex_loci_cnt putative sex specific loci.\n";
 
 sub parse_popmap {
     
